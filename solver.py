@@ -78,7 +78,7 @@ class SudokuSolver:
         return boxes
     
     def solve(self, max_iter=100000, T=1.0, cooling_rate=0.999):
-        for attempt in range(20):  # up to 5 random restarts
+        for attempt in range(10):  # up to 10 random restarts
             self.initialize()
             current_cost = self.cost()
             boxes = self.get_box_indices()
@@ -104,6 +104,6 @@ class SudokuSolver:
 
                 T *= cooling_rate
 
-            print(f"Restarting... Attempt {attempt+1}/20 failed with cost {current_cost}")
+            print(f"Restarting... Attempt {attempt+1}/10 failed with cost {current_cost}")
         
         return None  # if all attempts fail

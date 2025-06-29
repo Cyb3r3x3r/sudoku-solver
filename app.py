@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request
 from solver import SudokuSolver
 import time  # ⏱️ Import time
-from validator import is_valid_solution  # ✅ Add this file
+from validator import is_valid_solution
+from backtracking import solve_backtracking
+import copy
 
 app = Flask(__name__)
 #last_board = None
@@ -29,19 +31,32 @@ def index():
 
         start_time = time.time()
         solution = solver.solve()
-        end_time = time.time()
+        solve_time = round(time.time() - start_time, 4)
+
+        if solution is None:
+        # fallback to backtracking
+            board_copy = copy.deepcopy(board)
+            bt_start = time.time()
+            if solve_backtracking(board_copy, m, n):
+                solution = board_copy
+                solve_time = round(time.time() - bt_start, 4)
+                method = "Backtracking"
+            else:
+                return "<h3>❌ No valid solution found.</h3>"
+        else:
+            method = "Simulated Annealing"
 
         if solution:
             is_valid = is_valid_solution(solution, m, n)
-            solve_time = round(end_time - start_time, 4)
             return render_template(
                 'result.html',
                 solution=solution,
                 initial_board=board,
                 m=m,
                 n=n,
-                is_valid=is_valid,
-                solve_time=solve_time
+                is_valid=is_valid_solution(solution, m, n),
+                solve_time=solve_time,
+                method=method
             )
         else:
             return "<h3>❌ Failed to solve Sudoku. Try again.</h3>"
